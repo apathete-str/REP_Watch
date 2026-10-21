@@ -1,0 +1,24 @@
+{
+  "name": "TempoFit - Rep & Rest Workout Tracker",
+  "short_name": "TempoFit",
+  "description": "Fluid Material 3 Workout Rep Cadence & Rest Interval Tracker",
+  "start_url": "./index.html",
+  "display": "standalone",
+  "background_color": "#121316",
+  "theme_color": "#D0BCFF",
+  "orientation": "portrait",
+  "icons": [
+    {
+      "src": "icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ]
+}
