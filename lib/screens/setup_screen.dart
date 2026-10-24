@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 
 import '../controllers/workout_controller.dart';
-import '../models/workout_model.dart';
 
 class SetupScreen extends StatelessWidget {
   final WorkoutController controller;

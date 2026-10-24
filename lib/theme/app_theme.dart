@@ -17,9 +17,9 @@ class AppTheme {
       useMaterial3: true,
       colorScheme: baseColorScheme,
       scaffoldBackgroundColor: baseColorScheme.surface,
-      cardTheme: CardTheme(
+      cardTheme: CardThemeData(
         elevation: 0,
-        shape: RoundedCornerShape(24),
+        shape: roundedCornerShape(24),
         color: baseColorScheme.surfaceContainerLow,
       ),
       appBarTheme: AppBarTheme(
@@ -43,9 +43,9 @@ class AppTheme {
       useMaterial3: true,
       colorScheme: baseColorScheme,
       scaffoldBackgroundColor: baseColorScheme.surface,
-      cardTheme: CardTheme(
+      cardTheme: CardThemeData(
         elevation: 0,
-        shape: RoundedCornerShape(24),
+        shape: roundedCornerShape(24),
         color: baseColorScheme.surfaceContainer,
       ),
       appBarTheme: AppBarTheme(
@@ -59,7 +59,7 @@ class AppTheme {
     );
   }
 
-  static RoundedRectangleBorder RoundedCornerShape(double radius) {
+  static RoundedRectangleBorder roundedCornerShape(double radius) {
     return RoundedRectangleBorder(
       borderRadius: BorderRadius.circular(radius),
     );
