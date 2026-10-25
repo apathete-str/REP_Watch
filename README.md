@@ -12,7 +12,7 @@
 
 <br/>
 
-<img src="assets/rep_logo.png" alt="Rep Watch Logo" width="130" style="border-radius: 36px; box-shadow: 0 10px 24px rgba(0,0,0,0.25);" />
+<!-- <img src="assets/rep_logo.png" alt="Rep Watch Logo" width="130" style="border-radius: 36px; box-shadow: 0 10px 24px rgba(0,0,0,0.25);" /> -->
 
 <br/>
 
