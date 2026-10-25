@@ -32,9 +32,97 @@ class WorkoutController extends ChangeNotifier {
     notifyListeners();
   }
 
+  void updateRepRestTime(int delta) {
+    final newRepRest = (_config.repRestTime + delta).clamp(0, 30);
+    _config = _config.copyWith(repRestTime: newRepRest);
+    notifyListeners();
+  }
+
+  void toggleVibrateOnSetStart() {
+    _config = _config.copyWith(vibrateOnSetStart: !_config.vibrateOnSetStart);
+    HapticFeedback.selectionClick();
+    notifyListeners();
+  }
+
+  void toggleVibrateOnSetComplete() {
+    _config = _config.copyWith(vibrateOnSetComplete: !_config.vibrateOnSetComplete);
+    HapticFeedback.selectionClick();
+    notifyListeners();
+  }
+
   void updateRestTime(int delta) {
     final newRest = (_config.restTime + delta).clamp(5, 600);
     _config = _config.copyWith(restTime: newRest);
+    notifyListeners();
+  }
+
+  static final List<WorkoutPreset> defaultPresets = [
+    const WorkoutPreset(
+      id: 'hypertrophy',
+      name: 'Hypertrophy',
+      description: 'Classic muscle growth cadence',
+      isDefault: true,
+      config: WorkoutConfig(sets: 3, reps: 10, repDuration: 4, restTime: 90),
+    ),
+    const WorkoutPreset(
+      id: 'strength',
+      name: 'Heavy Strength',
+      description: 'Slow eccentric & heavier load',
+      isDefault: true,
+      config: WorkoutConfig(sets: 5, reps: 5, repDuration: 5, restTime: 120),
+    ),
+    const WorkoutPreset(
+      id: 'endurance',
+      name: 'Endurance',
+      description: 'High rep volume with short rest',
+      isDefault: true,
+      config: WorkoutConfig(sets: 4, reps: 15, repDuration: 3, restTime: 60),
+    ),
+    const WorkoutPreset(
+      id: 'speed_power',
+      name: 'Power & Speed',
+      description: 'Fast explosive contractions',
+      isDefault: true,
+      config: WorkoutConfig(sets: 4, reps: 6, repDuration: 2, restTime: 75),
+    ),
+    const WorkoutPreset(
+      id: 'tabata_tempo',
+      name: 'High Density',
+      description: 'Short paced rest intervals',
+      isDefault: true,
+      config: WorkoutConfig(sets: 6, reps: 8, repDuration: 3, restTime: 45),
+    ),
+  ];
+
+  late final List<WorkoutPreset> _presets = List.from(defaultPresets);
+
+  List<WorkoutPreset> get presets => List.unmodifiable(_presets);
+
+  void addCustomPreset({
+    required String name,
+    required WorkoutConfig config,
+  }) {
+    final newPreset = WorkoutPreset(
+      id: 'custom_${DateTime.now().millisecondsSinceEpoch}',
+      name: name.trim().isEmpty ? 'Custom Preset' : name.trim(),
+      config: config,
+      isDefault: false,
+    );
+    _presets.add(newPreset);
+    _config = config;
+    HapticFeedback.mediumImpact();
+    notifyListeners();
+  }
+
+  void removePreset(String id) {
+    _presets.removeWhere((p) => p.id == id && !p.isDefault);
+    HapticFeedback.lightImpact();
+    notifyListeners();
+  }
+
+  void applyPresetConfig(WorkoutConfig presetConfig) {
+    _config = presetConfig;
+    HapticFeedback.selectionClick();
     notifyListeners();
   }
 
@@ -88,6 +176,15 @@ class WorkoutController extends ChangeNotifier {
         } else {
           _finishWorkout();
         }
+        break;
+      case WorkoutPhase.repRest:
+        // Skip inter-rep rest directly into next work repetition
+        _state = _state.copyWith(
+          phase: WorkoutPhase.work,
+          currentRep: _state.currentRep + 1,
+          phaseElapsedSeconds: 0.0,
+        );
+        notifyListeners();
         break;
       case WorkoutPhase.rest:
         _enterWorkPhase(_state.currentSet + 1);
@@ -144,28 +241,48 @@ class WorkoutController extends ChangeNotifier {
 
       case WorkoutPhase.work:
         final repDuration = cfg.repDuration;
-        final totalWorkDuration = cfg.reps * repDuration;
 
-        final repIndex = ((newPhaseElapsed / repDuration).toInt() + 1).clamp(1, cfg.reps);
-
-        if (repIndex != cur.currentRep && repIndex <= cfg.reps) {
-          if (repIndex > 1) {
-            HapticFeedback.lightImpact();
-            SystemSound.play(SystemSoundType.click);
-          }
-        }
-
-        if (newPhaseElapsed >= totalWorkDuration) {
-          HapticFeedback.heavyImpact();
-          SystemSound.play(SystemSoundType.alert);
-          if (cur.currentSet < cfg.sets) {
-            _enterRestPhase(cur.currentSet);
+        if (newPhaseElapsed >= repDuration) {
+          // One repetition completed!
+          if (cur.currentRep >= cfg.reps) {
+            // Set completed!
+            _onSetCompleted(cur.currentSet);
           } else {
-            _finishWorkout();
+            // Move to next rep: check if inter-rep rest is configured
+            if (cfg.repRestTime > 0) {
+              _enterRepRestPhase(cur.currentSet, cur.currentRep);
+            } else {
+              HapticFeedback.lightImpact();
+              SystemSound.play(SystemSoundType.click);
+              _state = cur.copyWith(
+                currentRep: cur.currentRep + 1,
+                phaseElapsedSeconds: 0.0,
+                totalElapsedSeconds: newTotalElapsed,
+              );
+              notifyListeners();
+            }
           }
         } else {
           _state = cur.copyWith(
-            currentRep: repIndex,
+            phaseElapsedSeconds: newPhaseElapsed,
+            totalElapsedSeconds: newTotalElapsed,
+          );
+          notifyListeners();
+        }
+        break;
+
+      case WorkoutPhase.repRest:
+        if (newPhaseElapsed >= cfg.repRestTime) {
+          HapticFeedback.selectionClick();
+          _state = cur.copyWith(
+            phase: WorkoutPhase.work,
+            currentRep: cur.currentRep + 1,
+            phaseElapsedSeconds: 0.0,
+            totalElapsedSeconds: newTotalElapsed,
+          );
+          notifyListeners();
+        } else {
+          _state = cur.copyWith(
             phaseElapsedSeconds: newPhaseElapsed,
             totalElapsedSeconds: newTotalElapsed,
           );
@@ -178,7 +295,10 @@ class WorkoutController extends ChangeNotifier {
         final intRemaining = restRemaining.toInt();
 
         // 3-2-1 warning ticks
-        if (intRemaining >= 1 && intRemaining <= 3 && intRemaining != _lastTickRep && (restRemaining - intRemaining) < 0.1) {
+        if (intRemaining >= 1 &&
+            intRemaining <= 3 &&
+            intRemaining != _lastTickRep &&
+            (restRemaining - intRemaining) < 0.1) {
           _lastTickRep = intRemaining;
           HapticFeedback.mediumImpact();
           SystemSound.play(SystemSoundType.click);
@@ -200,9 +320,45 @@ class WorkoutController extends ChangeNotifier {
     }
   }
 
+  void _enterRepRestPhase(int setNumber, int completedRep) {
+    HapticFeedback.lightImpact();
+    _state = _state.copyWith(
+      phase: WorkoutPhase.repRest,
+      currentSet: setNumber,
+      currentRep: completedRep,
+      phaseElapsedSeconds: 0.0,
+    );
+    notifyListeners();
+  }
+
+  void _onSetCompleted(int completedSet) {
+    if (_config.vibrateOnSetComplete) {
+      HapticFeedback.heavyImpact();
+      Future.delayed(const Duration(milliseconds: 150), () {
+        HapticFeedback.heavyImpact();
+      });
+    } else {
+      HapticFeedback.mediumImpact();
+    }
+    SystemSound.play(SystemSoundType.alert);
+
+    if (completedSet < _config.sets) {
+      _enterRestPhase(completedSet);
+    } else {
+      _finishWorkout();
+    }
+  }
+
   void _enterWorkPhase(int setNumber) {
     _lastTickRep = -1;
-    HapticFeedback.heavyImpact();
+    if (_config.vibrateOnSetStart) {
+      HapticFeedback.heavyImpact();
+      Future.delayed(const Duration(milliseconds: 120), () {
+        HapticFeedback.mediumImpact();
+      });
+    } else {
+      HapticFeedback.mediumImpact();
+    }
     SystemSound.play(SystemSoundType.alert);
     _state = _state.copyWith(
       phase: WorkoutPhase.work,

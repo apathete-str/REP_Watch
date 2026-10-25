@@ -27,42 +27,45 @@ class SummaryModal extends StatelessWidget {
         '${m.toString().padLeft(2, '0')}:${s.toString().padLeft(2, '0')}';
 
     return Dialog(
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(28)),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(36)),
       backgroundColor: colorScheme.surfaceContainerHighest,
       child: Padding(
-        padding: const EdgeInsets.all(24.0),
+        padding: const EdgeInsets.all(28.0),
         child: Column(
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
             Container(
-              padding: const EdgeInsets.all(16),
+              padding: const EdgeInsets.all(18),
               decoration: BoxDecoration(
                 color: colorScheme.primaryContainer,
-                shape: BoxShape.circle,
+                borderRadius: BorderRadius.circular(24),
               ),
               child: Icon(
                 Icons.emoji_events_rounded,
                 color: colorScheme.onPrimaryContainer,
-                size: 40,
+                size: 44,
               ),
             ),
-            const SizedBox(height: 16),
+            const SizedBox(height: 18),
             Text(
-              'Crushed It!',
+              'Rep Watch Complete!',
+              textAlign: TextAlign.center,
               style: theme.textTheme.headlineSmall?.copyWith(
-                fontWeight: FontWeight.bold,
+                fontWeight: FontWeight.w900,
+                letterSpacing: -0.5,
                 color: colorScheme.onSurface,
               ),
             ),
             const SizedBox(height: 6),
             Text(
-              'Workout completed successfully.',
+              'All targeted sets & cadence cycles finished.',
+              textAlign: TextAlign.center,
               style: theme.textTheme.bodyMedium?.copyWith(
                 color: colorScheme.onSurfaceVariant,
               ),
             ),
-            const SizedBox(height: 20),
+            const SizedBox(height: 22),
             Row(
               children: [
                 Expanded(
@@ -70,7 +73,7 @@ class SummaryModal extends StatelessWidget {
                 ),
                 const SizedBox(width: 8),
                 Expanded(
-                  child: _StatCard(title: 'TOTAL REPS', value: '$totalReps'),
+                  child: _StatCard(title: 'REPS', value: '$totalReps'),
                 ),
                 const SizedBox(width: 8),
                 Expanded(
@@ -78,16 +81,17 @@ class SummaryModal extends StatelessWidget {
                 ),
               ],
             ),
-            const SizedBox(height: 24),
+            const SizedBox(height: 26),
             FilledButton.icon(
               onPressed: onDone,
               style: FilledButton.styleFrom(
-                minimumSize: const Size.fromHeight(50),
+                minimumSize: const Size.fromHeight(56),
                 shape: const StadiumBorder(),
+                elevation: 3,
               ),
-              icon: const Icon(Icons.check_rounded),
+              icon: const Icon(Icons.check_circle_rounded),
               label: const Text(
-                'Done',
+                'Complete & Return',
                 style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
               ),
             ),
@@ -112,23 +116,23 @@ class _StatCard extends StatelessWidget {
     return Card(
       color: colorScheme.surfaceContainer,
       elevation: 0,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(22)),
       child: Padding(
-        padding: const EdgeInsets.symmetric(vertical: 12.0, horizontal: 8.0),
+        padding: const EdgeInsets.symmetric(vertical: 14.0, horizontal: 8.0),
         child: Column(
           children: [
             Text(
               title,
               style: theme.textTheme.labelSmall?.copyWith(
-                fontWeight: FontWeight.w600,
+                fontWeight: FontWeight.w700,
                 color: colorScheme.onSurfaceVariant,
               ),
             ),
-            const SizedBox(height: 4),
+            const SizedBox(height: 6),
             Text(
               value,
               style: theme.textTheme.titleMedium?.copyWith(
-                fontWeight: FontWeight.bold,
+                fontWeight: FontWeight.w900,
                 color: colorScheme.primary,
               ),
             ),

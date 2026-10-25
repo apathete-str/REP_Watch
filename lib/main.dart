@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+
 import 'controllers/workout_controller.dart';
 import 'screens/setup_screen.dart';
 import 'screens/workout_screen.dart';
@@ -6,17 +7,17 @@ import 'theme/app_theme.dart';
 
 void main() {
   WidgetsFlutterBinding.ensureInitialized();
-  runApp(const TempoFitApp());
+  runApp(const RepWatchApp());
 }
 
-class TempoFitApp extends StatefulWidget {
-  const TempoFitApp({super.key});
+class RepWatchApp extends StatefulWidget {
+  const RepWatchApp({super.key});
 
   @override
-  State<TempoFitApp> createState() => _TempoFitAppState();
+  State<RepWatchApp> createState() => _RepWatchAppState();
 }
 
-class _TempoFitAppState extends State<TempoFitApp> {
+class _RepWatchAppState extends State<RepWatchApp> {
   final WorkoutController _controller = WorkoutController();
 
   @override
@@ -27,20 +28,55 @@ class _TempoFitAppState extends State<TempoFitApp> {
 
   @override
   Widget build(BuildContext context) {
-    return ListenableBuilder(
-      listenable: _controller,
-      builder: (context, _) {
-        return MaterialApp(
-          title: 'TempoFit',
-          debugShowCheckedModeBanner: false,
-          theme: AppTheme.lightTheme(),
-          darkTheme: AppTheme.darkTheme(),
-          themeMode: ThemeMode.system,
-          home: _controller.state.isRunning
-              ? WorkoutScreen(controller: _controller)
-              : SetupScreen(controller: _controller),
-        );
-      },
+    return MaterialApp(
+      title: 'Rep Watch',
+      debugShowCheckedModeBanner: false,
+      theme: AppTheme.lightTheme(),
+      darkTheme: AppTheme.darkTheme(),
+      themeMode: ThemeMode.system,
+      home: _AppHome(controller: _controller),
     );
+  }
+}
+
+class _AppHome extends StatefulWidget {
+  final WorkoutController controller;
+
+  const _AppHome({required this.controller});
+
+  @override
+  State<_AppHome> createState() => _AppHomeState();
+}
+
+class _AppHomeState extends State<_AppHome> {
+  bool _isRunning = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _isRunning = widget.controller.state.isRunning;
+    widget.controller.addListener(_onControllerChanged);
+  }
+
+  @override
+  void dispose() {
+    widget.controller.removeListener(_onControllerChanged);
+    super.dispose();
+  }
+
+  void _onControllerChanged() {
+    final running = widget.controller.state.isRunning;
+    if (running != _isRunning) {
+      setState(() {
+        _isRunning = running;
+      });
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return _isRunning
+        ? WorkoutScreen(controller: widget.controller)
+        : SetupScreen(controller: widget.controller);
   }
 }

@@ -10,12 +10,12 @@ import 'package:flutter_test/flutter_test.dart';
 import '../main.dart';
 
 void main() {
-  testWidgets('App smoke test loads TempoFit setup screen', (WidgetTester tester) async {
+  testWidgets('App smoke test loads Rep Watch setup screen', (WidgetTester tester) async {
     // Build our app and trigger a frame.
-    await tester.pumpWidget(const TempoFitApp());
+    await tester.pumpWidget(const RepWatchApp());
 
-    // Verify that TempoFit branding and Start Workout button are present.
-    expect(find.text('TempoFit'), findsOneWidget);
+    // Verify that Rep Watch branding and Start Workout button are present.
+    expect(find.text('Rep Watch'), findsOneWidget);
     expect(find.text('Start Workout'), findsOneWidget);
   });
 }
