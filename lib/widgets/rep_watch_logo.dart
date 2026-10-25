@@ -16,12 +16,34 @@ class RepWatchLogo extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final colorScheme = Theme.of(context).colorScheme;
-
-    return SizedBox(
+    return Container(
       width: size,
       height: size,
-      child: animate ? _AnimatedRepWatchLogo(size: size) : _StaticRepWatchLogo(size: size, colorScheme: colorScheme),
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(size * 0.28),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withValues(alpha: 0.15),
+            blurRadius: 6,
+            offset: const Offset(0, 2),
+          ),
+        ],
+      ),
+      child: ClipRRect(
+        borderRadius: BorderRadius.circular(size * 0.28),
+        child: Image.asset(
+          'assets/rep_logo.png',
+          width: size,
+          height: size,
+          fit: BoxFit.cover,
+          errorBuilder: (context, error, stackTrace) {
+            final colorScheme = Theme.of(context).colorScheme;
+            return animate
+                ? _AnimatedRepWatchLogo(size: size)
+                : _StaticRepWatchLogo(size: size, colorScheme: colorScheme);
+          },
+        ),
+      ),
     );
   }
 }
